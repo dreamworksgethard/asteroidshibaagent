@@ -10,7 +10,7 @@
 
     :root {
       --neon-blue: #00d4ff;
-      --neon-purple: #bf00ff;
+      --neon-purple: #0052ff;
       --neon-yellow: #ffe600;
       --neon-green: #00ff88;
       --dark-bg: #03080f;
@@ -835,6 +835,28 @@
     }
     .footer-links a:hover { color: var(--neon-blue); }
 
+    /* ─── GLOWING ANIMATED TEXT ─── */
+    .glowing-text {
+      display: inline-block;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff 0%, var(--neon-blue) 40%, #fff 70%, var(--neon-blue) 100%);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: light-sweep 3s linear infinite, glow-pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px rgba(0,212,255,0.6));
+    }
+
+    @keyframes light-sweep {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { filter: drop-shadow(0 0 6px rgba(0,212,255,0.5)); }
+      50%       { filter: drop-shadow(0 0 18px rgba(0,212,255,0.9)); }
+    }
+
     /* ─── SCROLL INDICATOR ─── */
     .scroll-indicator {
       position: absolute;
@@ -897,7 +919,7 @@
 
   <!-- NAV -->
   <nav>
-    <div class="nav-logo">☄ ASTEROID SHIBA</div>
+    <div class="nav-logo">☄ <span style="color:var(--neon-yellow);">$ASTERO</span></div>
     <ul class="nav-links">
       <li><a href="#hero">Home</a></li>
       <li><a href="#agent">Chat</a></li>
@@ -938,7 +960,8 @@
           <span class="line3">AGENT 🚀</span>
         </h1>
         <p class="hero-sub">
-          The world's first <strong>AI-powered Shiba astronaut</strong> ready to answer your burning questions, roast your crypto portfolio, and guide you to the moon — much intelligence, very AI, wow.
+          The world's first <strong>AI-powered Shiba astronaut</strong> ready to answer your burning questions, roast your crypto portfolio, and guide you to the moon — much intelligence, very AI, wow.<br><br>
+        <span class="glowing-text">It went to space and now serves as your personal AI agent.</span>
         </p>
         <div class="hero-ctas">
           <button class="btn-primary" onclick="document.getElementById('agent').scrollIntoView({behavior:'smooth'})">
