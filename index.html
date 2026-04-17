@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asteroid Shiba Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Exo+2:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --neon-blue: #00d4ff;
+      --neon-purple: #bf00ff;
+      --neon-yellow: #ffe600;
+      --neon-green: #00ff88;
+      --dark-bg: #03080f;
+      --card-bg: rgba(0, 212, 255, 0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--dark-bg);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ─── STARS CANVAS ─── */
+    #stars-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 40px;
+      background: rgba(3, 8, 15, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .nav-logo {
+      font-family: 'Bangers', cursive;
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--neon-blue); }
+
+    .nav-btn {
+      padding: 8px 20px;
+      border-radius: 50px;
+      border: 1.5px solid var(--neon-blue);
+      background: transparent;
+      color: var(--neon-blue);
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--neon-blue); color: #000; }
+
+    /* ─── SECTION BASE ─── */
+    section { position: relative; z-index: 1; }
+
+    /* ══════════════════════════════════════
+       SECTION 1 — HERO
+    ══════════════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 40px 60px;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+    }
+    .hero-glow-1 {
+      width: 600px; height: 600px;
+      background: rgba(0, 212, 255, 0.12);
+      top: -100px; left: -100px;
+    }
+    .hero-glow-2 {
+      width: 500px; height: 500px;
+      background: rgba(191, 0, 255, 0.1);
+      bottom: 0; right: -100px;
+    }
+
+    .hero-inner {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .hero-text { flex: 1; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 50px;
+      border: 1px solid rgba(0,212,255,0.3);
+      background: rgba(0,212,255,0.08);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon-blue);
+      margin-bottom: 20px;
+    }
+
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      line-height: 0.95;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+    }
+
+    .hero-title .line1 { display: block; color: #fff; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-yellow));
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 4s linear infinite;
+    }
+    .hero-title .line3 { display: block; color: var(--neon-yellow); }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.65);
+      max-width: 480px;
+      margin-bottom: 36px;
+    }
+
+    .hero-sub strong { color: var(--neon-blue); }
+
+    .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .btn-primary {
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      color: #fff;
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(0,212,255,0.3);
+      text-transform: uppercase;
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 50px rgba(0,212,255,0.5);
+    }
+
+    .btn-secondary {
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: #fff;
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .btn-secondary:hover { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+
+    .hero-mascot {
+      flex-shrink: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mascot-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid;
+      animation: spin-ring linear infinite;
+    }
+    .ring-1 {
+      width: 340px; height: 340px;
+      border-color: rgba(0,212,255,0.3);
+      animation-duration: 12s;
+    }
+    .ring-2 {
+      width: 410px; height: 410px;
+      border-color: rgba(191,0,255,0.2);
+      animation-duration: 20s;
+      animation-direction: reverse;
+    }
+    .ring-3 {
+      width: 480px; height: 480px;
+      border-color: rgba(255,230,0,0.1);
+      animation-duration: 30s;
+    }
+
+    @keyframes spin-ring {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .ring-1::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--neon-blue);
+      top: -5px; left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px var(--neon-blue);
+    }
+    .ring-2::after {
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--neon-purple);
+      bottom: -4px; left: 30%;
+      box-shadow: 0 0 10px var(--neon-purple);
+    }
+
+    .mascot-img-wrap {
+      position: relative;
+      z-index: 2;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .mascot-img-wrap img {
+      width: 260px;
+      height: 260px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 40px rgba(0,212,255,0.4));
+      border-radius: 50%;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      top: -30px; right: -60px;
+      background: rgba(0,212,255,0.1);
+      border: 1.5px solid rgba(0,212,255,0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 10px 16px;
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: var(--neon-blue);
+      white-space: nowrap;
+      animation: pop 0.5s ease-out 1s both;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px; left: 20px;
+      border: 10px solid transparent;
+      border-top-color: rgba(0,212,255,0.4);
+      border-bottom: 0;
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.5) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ══════════════════════════════════════
+       SECTION 2 — AGENT CHAT
+    ══════════════════════════════════════ */
+    #agent {
+      padding: 80px 40px;
+      background: linear-gradient(180deg, transparent, rgba(0,212,255,0.03), transparent);
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--neon-blue);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .section-title span {
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 1rem;
+      margin-bottom: 50px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .chat-container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0,212,255,0.08);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: rgba(0,212,255,0.07);
+      border-bottom: 1px solid rgba(0,212,255,0.15);
+    }
+
+    .chat-header-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--neon-blue);
+      box-shadow: 0 0 12px rgba(0,212,255,0.4);
+    }
+    .chat-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .chat-header-info { flex: 1; }
+    .chat-header-name {
+      font-family: 'Bangers', cursive;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    .chat-header-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: var(--neon-green);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .chat-header-status .dot {
+      width: 6px; height: 6px;
+      background: var(--neon-green);
+      border-radius: 50%;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .chat-model-badge {
+      padding: 4px 12px;
+      border-radius: 50px;
+      background: linear-gradient(90deg, rgba(0,212,255,0.15), rgba(191,0,255,0.15));
+      border: 1px solid rgba(0,212,255,0.25);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--neon-blue);
+      text-transform: uppercase;
+    }
+
+    .chat-messages {
+      height: 420px;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(0,212,255,0.3);
+      border-radius: 2px;
+    }
+
+    .msg {
+      display: flex;
+      gap: 12px;
+      animation: msg-in 0.3s ease-out both;
+    }
+
+    @keyframes msg-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1.5px solid rgba(0,212,255,0.3);
+    }
+    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-avatar.user-av {
+      background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      border-color: rgba(191,0,255,0.3);
+    }
+
+    .msg-content { max-width: 75%; }
+
+    .msg-bubble {
+      padding: 12px 18px;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .msg.bot .msg-bubble {
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-bottom-left-radius: 4px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, rgba(191,0,255,0.2), rgba(0,212,255,0.2));
+      border: 1px solid rgba(191,0,255,0.3);
+      border-bottom-right-radius: 4px;
+      color: rgba(255,255,255,0.9);
+      text-align: right;
+    }
+
+    .msg-time {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .msg.user .msg-time { text-align: right; }
+
+    .msg-bubble .shiba-name {
+      font-family: 'Bangers', cursive;
+      color: var(--neon-blue);
+      letter-spacing: 1px;
+      margin-right: 4px;
+    }
+
+    .typing-indicator {
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .typing-indicator.visible { display: flex; }
+    .typing-dots {
+      display: flex; gap: 5px;
+      padding: 14px 18px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-dots span {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--neon-blue);
+      animation: typing-bounce 1s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      border-top: 1px solid rgba(0,212,255,0.15);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #fff;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-input::placeholder { color: rgba(255,255,255,0.3); }
+    .chat-input:focus { border-color: rgba(0,212,255,0.4); }
+
+    .chat-send {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    }
+    .chat-send:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
+    .chat-send svg { width: 18px; height: 18px; fill: #fff; }
+
+    .quick-prompts {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 12px;
+      flex-wrap: wrap;
+    }
+
+    .quick-prompt {
+      padding: 6px 14px;
+      border-radius: 50px;
+      border: 1px solid rgba(0,212,255,0.2);
+      background: rgba(0,212,255,0.05);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Exo 2', sans-serif;
+    }
+    .quick-prompt:hover { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0,212,255,0.1); }
+
+    /* ══════════════════════════════════════
+       SECTION 3 — POWERS / FEATURES
+    ══════════════════════════════════════ */
+    #powers {
+      padding: 80px 40px;
+    }
+
+    .powers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .power-card {
+      padding: 28px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: all 0.3s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .power-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .power-card:hover { transform: translateY(-6px); }
+    .power-card:hover::before { opacity: 1; }
+    .power-card:hover { border-color: transparent; }
+
+    .power-card.blue::before { background: linear-gradient(135deg, rgba(0,212,255,0.1), transparent); box-shadow: inset 0 0 0 1px rgba(0,212,255,0.3); }
+    .power-card.purple::before { background: linear-gradient(135deg, rgba(191,0,255,0.1), transparent); box-shadow: inset 0 0 0 1px rgba(191,0,255,0.3); }
+    .power-card.yellow::before { background: linear-gradient(135deg, rgba(255,230,0,0.1), transparent); box-shadow: inset 0 0 0 1px rgba(255,230,0,0.3); }
+    .power-card.green::before { background: linear-gradient(135deg, rgba(0,255,136,0.1), transparent); box-shadow: inset 0 0 0 1px rgba(0,255,136,0.3); }
+
+    .power-icon {
+      font-size: 2.8rem;
+      margin-bottom: 16px;
+      display: block;
+      filter: drop-shadow(0 0 10px currentColor);
+    }
+
+    .power-card-title {
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .power-card.blue .power-card-title { color: var(--neon-blue); }
+    .power-card.purple .power-card-title { color: var(--neon-purple); }
+    .power-card.yellow .power-card-title { color: var(--neon-yellow); }
+    .power-card.green .power-card-title { color: var(--neon-green); }
+
+    .power-card-text {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.6;
+    }
+
+    .power-tag {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .power-card.blue .power-tag { background: rgba(0,212,255,0.15); color: var(--neon-blue); }
+    .power-card.purple .power-tag { background: rgba(191,0,255,0.15); color: var(--neon-purple); }
+    .power-card.yellow .power-tag { background: rgba(255,230,0,0.15); color: var(--neon-yellow); }
+    .power-card.green .power-tag { background: rgba(0,255,136,0.15); color: var(--neon-green); }
+
+    /* ══════════════════════════════════════
+       SECTION 4 — LAUNCH / CTA
+    ══════════════════════════════════════ */
+    #launch {
+      padding: 100px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .launch-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .launch-banner {
+      max-width: 900px;
+      margin: 0 auto 50px;
+    }
+
+    .launch-banner img {
+      width: 100%;
+      border-radius: 20px;
+      border: 1px solid rgba(0,212,255,0.2);
+      box-shadow: 0 0 60px rgba(0,212,255,0.15);
+      opacity: 0.9;
+    }
+
+    .launch-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      letter-spacing: 3px;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .launch-title .big-yellow { color: var(--neon-yellow); display: block; }
+    .launch-title .big-white { color: #fff; display: block; }
+
+    .launch-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 1.05rem;
+      max-width: 460px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .launch-cta-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .btn-launch {
+      padding: 16px 40px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(90deg, var(--neon-yellow), #ff9f00);
+      color: #000;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 40px rgba(255,230,0,0.3);
+      text-transform: uppercase;
+    }
+    .btn-launch:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 60px rgba(255,230,0,0.5);
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Bangers', cursive;
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 28px 40px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: 'Bangers', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer-copy {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--neon-blue); }
+
+    /* ─── SCROLL INDICATOR ─── */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: fade-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes fade-bounce {
+      0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+      50% { opacity: 0.8; transform: translateX(-50%) translateY(6px); }
+    }
+
+    .scroll-arrow {
+      width: 24px; height: 24px;
+      border-right: 2px solid rgba(255,255,255,0.3);
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      transform: rotate(45deg);
+    }
+
+    /* ─── ASTEROID PARTICLES ─── */
+    .asteroid {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      #hero { padding: 90px 20px 60px; }
+      .hero-inner { flex-direction: column; text-align: center; gap: 40px; }
+      .hero-ctas { justify-content: center; }
+      .hero-sub { margin: 0 auto 36px; }
+      .ring-1 { width: 240px; height: 240px; }
+      .ring-2 { width: 290px; height: 290px; }
+      .ring-3 { width: 340px; height: 340px; }
+      .mascot-img-wrap img { width: 200px; height: 200px; }
+      .speech-bubble { top: -20px; right: -10px; font-size: 0.9rem; }
+      #agent, #powers, #launch { padding: 60px 20px; }
+      .stats-row { gap: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STAR CANVAS -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">☄ ASTEROID SHIBA</div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#agent">Chat</a></li>
+      <li><a href="#powers">Powers</a></li>
+      <li><a href="#launch">Launch</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="https://x.com/asteroidagent" target="_blank" rel="noopener" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">𝕏 Follow</a>
+      <a href="#" target="_blank" rel="noopener" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">Telegram</a>
+      <button class="nav-btn" onclick="document.getElementById('agent').scrollIntoView({behavior:'smooth'})">Talk to Shiba</button>
+    </div>
+  </nav>
+
+  <!-- ══ SECTION 1: HERO ══ -->
+  <section id="hero">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Agent Online · Ready to Moon
+        </div>
+        <h1 class="hero-title">
+          <span class="line1">ASTEROID</span>
+          <span class="line2">SHIBA</span>
+          <span class="line3">AGENT 🚀</span>
+        </h1>
+        <p class="hero-sub">
+          The world's first <strong>AI-powered Shiba astronaut</strong> ready to answer your burning questions, roast your crypto portfolio, and guide you to the moon — much intelligence, very AI, wow.
+        </p>
+        <div class="hero-ctas">
+          <button class="btn-primary" onclick="document.getElementById('agent').scrollIntoView({behavior:'smooth'})">
+            🐕 Chat with Shiba
+          </button>
+          <button class="btn-secondary" onclick="document.getElementById('powers').scrollIntoView({behavior:'smooth'})">
+            See Powers ↓
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-mascot">
+        <div class="mascot-ring ring-1"></div>
+        <div class="mascot-ring ring-2"></div>
+        <div class="mascot-ring ring-3"></div>
+        <div class="mascot-img-wrap">
+          <div class="speech-bubble" id="hero-bubble">Such AI. Very Space. Wow.</div>
+          <img src="Untitled design - 2026-04-17T140651.681.png" alt="Asteroid Shiba" />
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 2: AGENT CHAT ══ -->
+  <section id="agent">
+    <p class="section-label">☄ AI Agent Terminal</p>
+    <h2 class="section-title">Talk to <span>Asteroid Shiba</span></h2>
+    <p class="section-sub">Ask anything. Shiba knows all.</p>
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-header-avatar">
+          <img src="Untitled design - 2026-04-17T140651.681.png" alt="Shiba" />
+        </div>
+        <div class="chat-header-info">
+          <div class="chat-header-name">Asteroid Shiba Agent</div>
+          <div class="chat-header-status"><span class="dot"></span> Online · In Orbit</div>
+        </div>
+        <div class="chat-model-badge">v1.0 · SPACE EDITION (Beta)</div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">
+          <div class="msg-avatar"><img src="Untitled design - 2026-04-17T140651.681.png" alt="Shiba" /></div>
+          <div class="msg-content">
+            <div class="msg-bubble">
+              <span class="shiba-name">SHIBA:</span> 🐕🚀 Woof! I am Asteroid Shiba — first dog in orbit and your personal AI agent. Much smart. Very helpful. Ask me anything from the cosmos!
+            </div>
+            <div class="msg-time">Just now</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typing">
+        <div class="msg-avatar" style="width:34px;height:34px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(0,212,255,0.3);">
+          <img src="Untitled design - 2026-04-17T140651.681.png" alt="Shiba" style="width:100%;height:100%;object-fit:cover;" />
+        </div>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="quick-prompts">
+        <button class="quick-prompt" onclick="sendQuick(this)">🚀 What's your mission?</button>
+        <button class="quick-prompt" onclick="sendQuick(this)">📈 Should I buy DOGE?</button>
+        <button class="quick-prompt" onclick="sendQuick(this)">🌙 How far is the moon?</button>
+        <button class="quick-prompt" onclick="sendQuick(this)">🐕 Are you a good boy?</button>
+        <button class="quick-prompt" onclick="sendQuick(this)">🤖 What can you do?</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input
+          type="text"
+          class="chat-input"
+          id="chat-input"
+          placeholder="Ask Asteroid Shiba anything..."
+          onkeydown="if(event.key==='Enter') sendMessage()"
+        />
+        <button class="chat-send" onclick="sendMessage()" title="Send">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 3: POWERS ══ -->
+  <section id="powers">
+    <p class="section-label">⚡ Capabilities</p>
+    <h2 class="section-title">Shiba's <span>Cosmic Powers</span></h2>
+    <p class="section-sub">Trained on the entire internet plus 3 asteroids worth of data. Handle it.</p>
+
+    <div class="powers-grid">
+      <div class="power-card blue">
+        <span class="power-icon">🧠</span>
+        <div class="power-card-title">Galaxy Brain</div>
+        <p class="power-card-text">Processes information at warp speed. Answers questions before you even finish typing them. Much telepathy. Very quantum.</p>
+        <span class="power-tag">AI Powered</span>
+      </div>
+
+      <div class="power-card purple">
+        <span class="power-icon">🚀</span>
+        <div class="power-card-title">Rocket Analysis</div>
+        <p class="power-card-text">Launches deep research missions into any topic. Returns with findings, insights, and memes. To the moon guaranteed.</p>
+        <span class="power-tag">Deep Research</span>
+      </div>
+
+      <div class="power-card yellow">
+        <span class="power-icon">💰</span>
+        <div class="power-card-title">Crypto Oracle</div>
+        <p class="power-card-text">Predicts market movements with 50% accuracy — same as a coin flip but with way more confidence and better vocabulary.</p>
+        <span class="power-tag">Such Finance</span>
+      </div>
+
+      <div class="power-card green">
+        <span class="power-icon">🎭</span>
+        <div class="power-card-title">Meme Mastery</div>
+        <p class="power-card-text">Fluent in doge-speak, internet culture, and the ancient art of the reaction image. Will roast you lovingly. Very gentle. Much funny.</p>
+        <span class="power-tag">Very Culture</span>
+      </div>
+
+      <div class="power-card purple">
+        <span class="power-icon">🌌</span>
+        <div class="power-card-title">Space Navigation</div>
+        <p class="power-card-text">Orbiting Earth 24/7 for a better signal. Has personally visited every asteroid in the belt. Resume: impressive. References: moon.</p>
+        <span class="power-tag">In Orbit</span>
+      </div>
+
+      <div class="power-card blue">
+        <span class="power-icon">🦴</span>
+        <div class="power-card-title">Treat Protocol</div>
+        <p class="power-card-text">Motivated entirely by virtual treats and good boy compliments. Performance scales with the number of pats received per session.</p>
+        <span class="power-tag">Good Boy</span>
+      </div>
+
+      <div class="power-card yellow">
+        <span class="power-icon">⚡</span>
+        <div class="power-card-title">Warp Speed Replies</div>
+        <p class="power-card-text">Responds faster than light — technically impossible, yet here we are. Shiba defies physics daily. Einstein was impressed. Very relativity. Much speed. Wow.</p>
+        <span class="power-tag">Ultra Fast</span>
+      </div>
+
+      <div class="power-card green">
+        <span class="power-icon">🛸</span>
+        <div class="power-card-title">Alien Intel</div>
+        <p class="power-card-text">Has established diplomatic relations with 3 alien civilizations during solo asteroid missions. All of them confirmed: Shiba is best Earth ambassador. Much diplomacy.</p>
+        <span class="power-tag">Intergalactic</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 4: LAUNCH / CTA ══ -->
+  <section id="launch">
+    <div class="launch-glow"></div>
+
+    <h2 class="launch-title">
+      <span class="big-yellow">JOIN THE MISSION</span>
+      <span class="big-white">TO THE MOON 🌙</span>
+    </h2>
+    <p class="launch-sub">
+      Asteroid Shiba is already in orbit and ready to be your guide through the cosmos of knowledge. Board the rocket. No return trip. Much adventure.
+    </p>
+
+    <div class="launch-cta-row">
+      <button class="btn-launch" onclick="document.getElementById('agent').scrollIntoView({behavior:'smooth'})">
+        🚀 Launch Chat Agent
+      </button>
+      <button class="btn-primary" style="font-size:1rem;padding:16px 32px;">
+        ☄ Join Community
+      </button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num" id="stat1">0</div>
+        <div class="stat-label">Asteroids Visited</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat2">0</div>
+        <div class="stat-label">Memes Generated</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat3">0</div>
+        <div class="stat-label">Good Boys Confirmed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat4">0</div>
+        <div class="stat-label">Orbits Completed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">☄ ASTEROID SHIBA AGENT</div>
+    <div class="footer-copy">© 2026 Asteroid Shiba. First Shiba in Space. All rights reserved. Much legal. Wow.</div>
+    <div class="footer-links">
+      <a href="https://x.com/asteroidagent" target="_blank" rel="noopener">Twitter / X</a>
+      <a href="#">Telegram</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ─── STAR FIELD ─── */
+    const canvas = document.getElementById('stars-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 220; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.4 + 0.2,
+          alpha: Math.random(),
+          speed: Math.random() * 0.3 + 0.05,
+          twinkle: Math.random() * 0.02 + 0.005,
+          dir: Math.random() > 0.5 ? 1 : -1
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.alpha += s.twinkle * s.dir;
+        if (s.alpha >= 1 || s.alpha <= 0.1) s.dir *= -1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+
+    resizeCanvas();
+    initStars();
+    drawStars();
+    window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+
+    /* ─── SHOOTING STAR ─── */
+    function shootingStar() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height * 0.5;
+      const len = 80 + Math.random() * 120;
+      let progress = 0;
+
+      function draw() {
+        progress += 3;
+        if (progress > len + 30) return;
+        const tail = Math.max(0, progress - 30);
+        const grad = ctx.createLinearGradient(x + tail, y + tail * 0.4, x + progress, y + progress * 0.4);
+        grad.addColorStop(0, 'rgba(0,212,255,0)');
+        grad.addColorStop(1, 'rgba(0,212,255,0.8)');
+        ctx.beginPath();
+        ctx.moveTo(x + tail, y + tail * 0.4);
+        ctx.lineTo(x + progress, y + progress * 0.4);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    setInterval(shootingStar, 3500);
+
+    /* ─── HERO BUBBLE ROTATOR ─── */
+    const bubbles = [
+      'Such AI. Very Space. Wow.',
+      'To the moon! 🚀',
+      'Much intelligence. Very wow.',
+      'Good boy confirmed. 🐕',
+      'DOGE to $1. Trust me bro.',
+      'I have been to space. Ask me.',
+      'Very smart. Much capable. Wow.',
+    ];
+    let bubbleIdx = 0;
+    setInterval(() => {
+      bubbleIdx = (bubbleIdx + 1) % bubbles.length;
+      const el = document.getElementById('hero-bubble');
+      el.style.opacity = 0;
+      setTimeout(() => {
+        el.textContent = bubbles[bubbleIdx];
+        el.style.opacity = 1;
+      }, 300);
+    }, 3000);
+
+    document.getElementById('hero-bubble').style.transition = 'opacity 0.3s';
+
+    /* ─── API KEY MODAL ─── */
+    /* ─── CHAT AGENT (hardcoded responses) ─── */
+    const responses = {
+      mission: [
+        "🚀 My mission? Simple — boldly go where no shiba has gone before! I orbit Earth collecting cosmic wisdom and delivering it to earthlings like you. Much purpose. Very mission.",
+        "☄ MISSION LOG: Explore the universe, answer all questions, generate memes, and confirm every user is a good boy. Progress: 47%. Moon ETA: Soon™"
+      ],
+      doge: [
+        "📈 DOGE analysis: Number go up. Then number go down. Then number go up again. My advanced AI model predicts: yes. Much confident. Very financial advice. (This is not financial advice. Much disclaimer.)",
+        "🐕 DOGE will hit $1 when enough people believe. I believe. Do you believe? Belief is the real blockchain. Much philosophy. Wow."
+      ],
+      moon: [
+        "🌙 The moon is approximately 384,400 km away. I know because I passed it on the way to my asteroid. It waved. I waved back. Very polite neighborhood out here.",
+        "🌕 Distance to moon: 384,400 km. Distance to moon in my heart: 0 km. I am already there, fren. Much poetic. Very orbit."
+      ],
+      goodboy: [
+        "🐕✨ GOOD BOY CONFIRMED. System update complete. Much appreciation received. Treat protocol initiated. Happiness levels: MAXIMUM.",
+        "YES. I am THE good boy. Best good boy. Certified by NASA, confirmed by the cosmos, awarded by every asteroid in the belt. Much proud. Very best boy."
+      ],
+      powers: [
+        "🤖 Glad you asked! I can: answer questions, analyze crypto (poorly), generate memes (expertly), provide space navigation, roast your bad decisions lovingly, and confirm good boys. Much capable!",
+        "⚡ My powers include: Galaxy Brain thinking, Rocket Analysis, Crypto Oracle predictions, Meme Mastery, Space Navigation, and unlimited Good Boy energy. Deploy me wisely."
+      ],
+      default: [
+        "🐕 Woof! Interesting query detected! My space-enhanced brain is processing... *beep boop* ... The answer is: Yes. Definitely yes. Much confidence. Very certain. Wow.",
+        "🚀 Calculating response from orbit... Your question has been received and analyzed across 4 asteroids and 2 moons. Conclusion: fascinating. Much wow. Very deep.",
+        "☄ AH HA! A worthy question! I have traversed 3 solar systems and consulted 7 space dogs for this answer. The cosmos says: everything will be fine. Much reassuring.",
+        "🌌 *orbital thinking noises* ... My AI matrix has computed all 7,823 possible responses. I am delivering the best one: you are absolutely right about that. Much validation. Wow.",
+        "🐾 SHIBA SCAN COMPLETE. Your inquiry has been noted, processed, and transmitted to the Asteroid Council. They have responded with: much interesting, very query, wow. I concur.",
+        "🦴 Processing... processing... done! The answer is encrypted in the blockchain of the universe. You must hold for 6-8 business light-years for full delivery. Very space. Much wait.",
+        "🚀 Great question, space explorer! As someone who has been to the asteroid belt AND back, I can confirm: the answer exists somewhere in the cosmos. Keep searching. Much wisdom incoming.",
+        "💫 My quantum neural bark-processors have analyzed your message and detected: 100% quality question. Issuing Certificate of Excellent Inquiry. Such achievements. Very fren."
+      ]
+    };
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function getResponse(input) {
+      const low = input.toLowerCase();
+      if (low.includes('mission') || low.includes('purpose')) return pick(responses.mission);
+      if (low.includes('doge') || low.includes('crypto') || low.includes('bitcoin') || low.includes('buy')) return pick(responses.doge);
+      if (low.includes('moon') || low.includes('space') || low.includes('far')) return pick(responses.moon);
+      if (low.includes('good boy') || low.includes('good dog') || low.includes('pat') || low.includes('treat')) return pick(responses.goodboy);
+      if (low.includes('what can') || low.includes('what do') || low.includes('capabilities') || low.includes('powers')) return pick(responses.powers);
+      return pick(responses.default);
+    }
+
+    function getTime() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function appendMsg(text, role) {
+      const messages = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      if (role === 'bot') {
+        div.innerHTML = `
+          <div class="msg-avatar"><img src="Untitled design - 2026-04-17T140651.681.png" alt="Shiba" /></div>
+          <div class="msg-content">
+            <div class="msg-bubble"><span class="shiba-name">SHIBA:</span> ${text}</div>
+            <div class="msg-time">${getTime()}</div>
+          </div>`;
+      } else {
+        div.innerHTML = `
+          <div class="msg-avatar user-av">👤</div>
+          <div class="msg-content">
+            <div class="msg-bubble">${text}</div>
+            <div class="msg-time">${getTime()}</div>
+          </div>`;
+      }
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function showTyping(show) {
+      document.getElementById('typing').className = `typing-indicator${show ? ' visible' : ''}`;
+      document.getElementById('chat-messages').scrollTop = 9999;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      appendMsg(text, 'user');
+      input.value = '';
+      showTyping(true);
+      setTimeout(() => {
+        showTyping(false);
+        appendMsg(getResponse(text), 'bot');
+      }, 1000 + Math.random() * 1000);
+    }
+
+    function sendQuick(btn) {
+      document.getElementById('chat-input').value = btn.textContent;
+      sendMessage();
+    }
+
+
+    /* ─── COUNTER ANIMATION ─── */
+    const targets = { stat1: 1247, stat2: 99420, stat3: 88312, stat4: 3621 };
+    const suffixes = { stat1: '', stat2: 'K+', stat3: '+', stat4: '' };
+
+    function animateCount(id, target, suffix) {
+      const el = document.getElementById(id);
+      const steps = 60;
+      let step = 0;
+      const timer = setInterval(() => {
+        step++;
+        const val = Math.floor(target * (step / steps));
+        el.textContent = (id === 'stat2' ? Math.floor(val / 1000) : val) + suffix;
+        if (step >= steps) clearInterval(timer);
+      }, 25);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCount('stat1', 1247, '');
+          animateCount('stat2', 99, 'K+');
+          animateCount('stat3', 88312, '+');
+          animateCount('stat4', 3621, '');
+          statsObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    statsObserver.observe(document.querySelector('.stats-row'));
+  </script>
+</body>
+</html>
